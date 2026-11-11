@@ -22,22 +22,30 @@
   --sans:'Inter Tight',system-ui,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;overflow-x:clip}
+::selection{background:var(--accent);color:#fff}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+@property --r{syntax:'<length>';inherits:true;initial-value:0px}
 body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;
   background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
   background-size:96px 96px;background-position:-1px -1px;background-attachment:fixed}
 body::before{content:"";position:fixed;inset:0;background:var(--paper);opacity:.86;z-index:-1}
+/* paper grain */
+body::after{content:"";position:fixed;inset:0;z-index:90;pointer-events:none;opacity:.06;mix-blend-mode:multiply;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E")}
 a{color:inherit;text-decoration:none}
 .wrap{max-width:1400px;margin:0 auto;border-left:1px solid var(--line);border-right:1px solid var(--line);background:color-mix(in srgb,var(--paper) 70%,transparent)}
 .mono{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase}
-h1,h2,h3{font-weight:600;text-transform:uppercase;letter-spacing:-.03em;line-height:.92}
+h1,h2,h3{font-weight:500;text-transform:uppercase;letter-spacing:-.035em;line-height:.94}
 .sec{border-bottom:1px solid var(--line)}
 .label{color:var(--muted)}
 .accent{color:var(--accent)}
-.btn{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:14px 18px;border:1px solid var(--ink);transition:.2s}
-.btn:hover{background:var(--ink);color:var(--paper)}
+.btn{position:relative;overflow:hidden;z-index:0;display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:14px 18px;min-height:44px;border:1px solid var(--ink);transition:color .3s,border-color .3s,transform .15s}
+.btn::before{content:"";position:absolute;inset:0;z-index:-1;background:var(--ink);transform:translateY(101%);transition:transform .35s cubic-bezier(.4,0,.2,1)}
+.btn:hover::before{transform:none}
+.btn:hover{color:var(--paper)}
+.btn:active{transform:scale(.97)}
 .btn.solid{background:var(--accent);border-color:var(--accent);color:#fff}
-.btn.solid:hover{background:var(--ink);border-color:var(--ink)}
+.btn.solid:hover{border-color:var(--ink)}
 .dot{display:inline-block;width:8px;height:8px;background:var(--accent)}
 
 /* nav */
@@ -49,15 +57,37 @@ nav{position:sticky;top:0;z-index:20;display:flex;align-items:stretch;justify-co
 .navlinks a.cta{color:var(--accent)}
 
 /* hero */
-.hero-art{position:relative;overflow:hidden;padding:40px 20px 0;display:flex;justify-content:center;border-bottom:1px solid var(--line)}
-.hero-art svg{width:min(860px,100%);height:auto}
+#top{display:flex;flex-direction:column;min-height:calc(100vh - 57px);min-height:calc(100dvh - 57px)}
+.hero-art{--r:0px;position:relative;overflow:hidden;flex:1;padding:36px 20px 0;display:flex;justify-content:center;align-items:flex-end;border-bottom:1px solid var(--line)}
+.hero-art.scan{--r:170px}
+.hero-art svg{width:min(1040px,100%);height:auto;max-height:100%;transform:translateY(var(--py,0px))}
+.anno{display:none}
+.anno text{font-family:var(--mono);font-size:10px;stroke:none;fill:#9DB8FF;letter-spacing:.04em}
+.anno .flag{fill:var(--accent)}
+/* blueprint view of the same house, shown through a circle that follows the cursor */
+.xray{position:absolute;inset:0;padding:inherit;display:flex;justify-content:center;align-items:flex-end;pointer-events:none;
+  background:var(--ink) linear-gradient(#1b3152 1px,transparent 1px) 0 0/100% 24px;
+  -webkit-mask:radial-gradient(circle var(--r) at var(--mx,50%) var(--my,50%),#000 99%,transparent);mask:radial-gradient(circle var(--r) at var(--mx,50%) var(--my,50%),#000 99%,transparent);
+  transition:--r .45s cubic-bezier(.16,1,.3,1)}
+.xray svg{stroke:#D5E2FF;stroke-width:1.6}
+.xray .shade{display:none}
+.xray .anno{display:block}
+.hint{position:absolute;left:20px;bottom:14px;transition:opacity .4s 1.6s}
+body.loading .hint,.hero-art.scan .hint{opacity:0;transition-delay:0s}
+@media (hover:none){.hint{display:none}}
 .hero-art .tag{position:absolute;font-family:var(--mono);font-size:10px;background:var(--ink);color:var(--paper);padding:6px 8px;letter-spacing:.04em}
 .hero-art .tag b{color:var(--accent);font-weight:500}
 .hero-bottom{display:grid;grid-template-columns:1.4fr 1fr 220px}
 .hero-bottom > *{padding:24px 20px}
-.hero-bottom h1{font-size:clamp(40px,5.2vw,76px)}
+.hero-bottom h1{font-size:clamp(42px,5.6vw,88px);letter-spacing:-.045em}
+.ln{display:block;overflow:hidden;padding-bottom:.06em;margin-bottom:-.06em}
+.ln > span{display:block;transition:transform 1.1s cubic-bezier(.16,1,.3,1)}
+.ln:nth-child(1) > span{transition-delay:.55s}.ln:nth-child(2) > span{transition-delay:.67s}.ln:nth-child(3) > span{transition-delay:.79s}
+body.loading .ln > span{transform:translateY(110%)}
+.hero-bottom p,.hero-bottom .more{transition:opacity .9s 1s,transform .9s 1s cubic-bezier(.16,1,.3,1)}
+body.loading .hero-bottom p,body.loading .hero-bottom .more{opacity:0;transform:translateY(24px)}
 .hero-bottom p{border-left:1px solid var(--line);font-size:15px;line-height:1.45;color:var(--muted)}
-.hero-bottom .more{border-left:1px solid var(--line);display:flex;flex-direction:column;justify-content:space-between}
+.hero-bottom .more{border-left:1px solid var(--line);display:flex;flex-direction:column;justify-content:space-between;gap:16px}
 .marquee{overflow:hidden;border-top:1px solid var(--line);white-space:nowrap}
 .marquee div{display:inline-flex;gap:48px;padding:12px 0;animation:mq 30s linear infinite}
 .marquee span::before{content:"◇ ";color:var(--accent)}
@@ -121,7 +151,8 @@ nav{position:sticky;top:0;z-index:20;display:flex;align-items:stretch;justify-co
 
 /* loop */
 .loop{display:grid;grid-template-columns:repeat(4,1fr)}
-.loop div{padding:28px 20px 40px;border-right:1px solid var(--line);transition:.25s}
+.loop div{padding:28px 20px 40px;border-right:1px solid var(--line)}
+.loop div.in{transition:opacity .8s,transform .8s,background .25s,color .25s}
 .loop div:last-child{border:0}
 .loop div:hover{background:var(--ink);color:var(--paper)}
 .loop h3{font-size:32px;margin:40px 0 10px}
@@ -169,7 +200,7 @@ body.loaded #loader{opacity:0;visibility:hidden}
 body.loading{overflow:hidden}
 .ld-house{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);width:min(860px,88vw)}
 .ld-house svg{width:100%;height:auto;display:block}
-.ld-house .shade{opacity:0}
+.ld-house .shade,.ld-house .flags{opacity:0}
 .ld-scan{position:absolute;left:0;top:50%;height:1px;width:0;background:var(--accent)}
 .ld-scan span{position:absolute;left:24px;bottom:8px;color:var(--accent)}
 .ld-title{position:absolute;left:24px;bottom:24px;font-size:clamp(26px,2.6vw,38px);line-height:.95}
@@ -180,8 +211,8 @@ body.loading{overflow:hidden}
 .ld-log li{opacity:0;transition:opacity .2s}
 .ld-log li.on{opacity:1}
 .lines *{transition:stroke-dashoffset 1.6s cubic-bezier(.6,0,.2,1)}
-#house .shade{transition:opacity 1.2s .3s}
-body.loading #house .shade{opacity:0}
+#house .shade,#house .flags{transition:opacity 1.2s .3s}
+body.loading #house .shade,body.loading #house .flags{opacity:0}
 nav{transition:transform .8s .5s cubic-bezier(.2,.7,.2,1)}
 body.loading nav{transform:translateY(-100%)}
 .hero-art .tag{transition:opacity .6s 1.2s}
@@ -202,8 +233,11 @@ body.loading .hero-art .tag{opacity:0}
 .intro-copy .step{opacity:.25;transition:opacity .4s}
 .intro-copy .step.on{opacity:1}
 
-.reveal{opacity:0;transform:translateY(24px);transition:opacity .8s,transform .8s}
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
 .reveal.in{opacity:1;transform:none}
+.cards .reveal:nth-child(2),.loop .reveal:nth-child(2),.products .reveal:nth-child(2){transition-delay:.1s}
+.cards .reveal:nth-child(3),.loop .reveal:nth-child(3){transition-delay:.2s}
+.cards .reveal:nth-child(4),.loop .reveal:nth-child(4){transition-delay:.3s}
 @media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none}.marquee div,.pin{animation:none}#loader{display:none}}
 
 @media (max-width:900px){
@@ -215,7 +249,7 @@ body.loading .hero-art .tag{opacity:0}
   .card:nth-child(2n),.loop div:nth-child(2n){border-right:0}
   .card,.loop div{border-bottom:1px solid var(--line)}
   .statement{padding:80px 16px}
-  .hero-art .tag{display:none}
+  .hero-art .tag,.hint{display:none}
   .ld-info{display:none}
   .intro-scene{height:auto}
   .intro-scene .sticky{position:static;height:auto}
@@ -265,7 +299,15 @@ body.loading .hero-art .tag{opacity:0}
         <rect x="198" y="60" width="102" height="90" fill="#D3DCE6"/><rect x="808" y="60" width="102" height="90" fill="#D3DCE6"/>
         <rect x="318" y="164" width="112" height="106" fill="#DCE3EB"/><rect x="808" y="164" width="102" height="106" fill="#DCE3EB"/>
         <path d="M180 40h18v400h-18zM300 40h18v260h-18zM430 10h18v430h-18zM660 10h18v430h-18zM790 40h18v290h-18zM910 40h18v290h-18z" fill="#C3CEDA"/>
-        <rect x="236" y="300" width="10" height="10" fill="#FF6B2C"/><rect x="760" y="218" width="10" height="10" fill="#FF6B2C"/><rect x="548" y="196" width="10" height="10" fill="#FF6B2C"/>
+      </g>
+      <g class="flags" stroke="none" fill="#FF6B2C"><rect x="236" y="300" width="10" height="10"/><rect x="760" y="218" width="10" height="10"/><rect x="548" y="196" width="10" height="10"/></g>
+      <g class="anno" stroke="#9DB8FF" stroke-width="1">
+        <path d="M180 461H928M180 455v12M928 455v12M1078 10V440M1071 10h14M1071 440h14"/>
+        <text x="554" y="456" text-anchor="middle">FRONTAGE 18.7 M · SETBACK OK</text>
+        <text x="1070" y="225" text-anchor="middle" transform="rotate(-90 1070 225)">HEIGHT 10.6 M · MAX 10.7</text>
+        <text class="flag" x="252" y="297">R311.7 STAIR RISE TOO HIGH</text>
+        <text class="flag" x="776" y="215">R310.1 EGRESS 4.9 / 5.7 SQ FT</text>
+        <text x="564" y="193">N1102 GLAZING U-0.30 OK</text>
       </g>
       <g class="lines">
         <path d="M40 440H1060"/>
@@ -286,9 +328,10 @@ body.loading .hero-art .tag{opacity:0}
     </svg>
     <div class="tag" style="left:11%;top:30%"><b>R-4 ZONING</b><br>MAX HEIGHT 35FT · OK</div>
     <div class="tag" style="right:9%;top:16%"><b>IRC R310.1</b><br>EGRESS WINDOW TOO SMALL</div>
+    <span class="hint mono label">[ Move your cursor over the house to scan it ]</span>
   </div>
   <div class="hero-bottom">
-    <h1 class="reveal">The AI agent for every home you build</h1>
+    <h1><span class="ln"><span>The AI agent</span></span><span class="ln"><span>for every home</span></span><span class="ln"><span>you build</span></span></h1>
     <p>Housing AI reads your site, your plans and the local code. It catches zoning and permit problems before the city does, and fixes them once you approve.</p>
     <div class="more"><span class="mono label">Est. 2026 · Housing tech</span><a class="btn solid" href="#contact">Discover more →</a></div>
   </div>
@@ -311,16 +354,16 @@ body.loading .hero-art .tag{opacity:0}
     <p>Every housing project stalls in the same places: unclear zoning, plan reviews that come back red, and hours lost checking rules by hand.</p>
   </div>
   <div class="cards">
-    <div class="card"><div class="top mono"><span>Manual</span><span class="label">[01]</span></div>
+    <div class="card reveal"><div class="top mono"><span>Manual</span><span class="label">[01]</span></div>
       <svg viewBox="0 0 120 100"><path d="M30 60 60 40l30 20v30H30z"/><path d="M30 60 60 80l30-20M60 80v10"/></svg>
       <h3>Every code check is on you</h3><p>Setbacks, egress, parking ratios. You check them one by one, project after project.</p></div>
-    <div class="card"><div class="top mono"><span><i class="dot"></i> Scattered</span><span class="label">[02]</span></div>
+    <div class="card reveal"><div class="top mono"><span><i class="dot"></i> Scattered</span><span class="label">[02]</span></div>
       <svg viewBox="0 0 120 100"><rect x="20" y="20" width="30" height="36"/><rect x="70" y="44" width="30" height="36"/><path d="M50 38h10v24h10" stroke-dasharray="3 3"/></svg>
       <h3>Rules live in a hundred PDFs</h3><p>Zoning maps, city amendments and building code sit in different places, and none of them talk to your model.</p></div>
-    <div class="card"><div class="top mono"><span>Late</span><span class="label">[03]</span></div>
+    <div class="card reveal"><div class="top mono"><span>Late</span><span class="label">[03]</span></div>
       <svg viewBox="0 0 120 100"><circle cx="60" cy="50" r="32"/><path d="M60 30v20l14 10"/></svg>
       <h3>Problems show up at review</h3><p>You find out a unit fails code when the plan reviewer sends it back, weeks later.</p></div>
-    <div class="card"><div class="top mono"><span>Costly</span><span class="label">[04]</span></div>
+    <div class="card reveal"><div class="top mono"><span>Costly</span><span class="label">[04]</span></div>
       <svg viewBox="0 0 120 100"><path d="M20 80h80M30 80V60M50 80V45M70 80V35M90 80V20"/></svg>
       <h3>Small delays cost real money</h3><p>Each month a project waits adds carrying costs, and pushes homes further out of reach.</p></div>
   </div>
@@ -368,7 +411,7 @@ body.loading .hero-art .tag{opacity:0}
   <div class="head"><div><span class="mono label">Your site. Your plans. Connected.</span><h2 class="reveal">Two tools, one agent</h2></div>
   <p>Use Housing AI inside your model while you design, or from the dashboard to track every project in your pipeline.</p></div>
   <div class="products" style="border-top:1px solid var(--line)">
-    <div class="product">
+    <div class="product reveal">
       <span class="mono label">[01]</span>
       <h3>Housing Copilot</h3>
       <p>Runs inside the design software you already use. It reads your plans, knows the local rules, and suggests changes. Nothing happens without your approval.</p>
@@ -381,7 +424,7 @@ body.loading .hero-art .tag{opacity:0}
       <ul><li>Works with Revit, ArchiCAD, AutoCAD, SketchUp</li><li>Knows zoning and building code for your city</li><li>Suggests fixes while you work</li><li>Edits the model after you approve</li></ul>
       <a class="btn" href="#contact">Learn more →</a>
     </div>
-    <div class="product">
+    <div class="product reveal">
       <span class="mono label">[02]</span>
       <h3>Housing Dashboard</h3>
       <p>Ask questions about any lot or project and get answers based on your site, unit mix and local code, not just the rule in isolation.</p>
@@ -401,10 +444,10 @@ body.loading .hero-art .tag{opacity:0}
   <div class="head"><div><span class="mono label">Why us</span><h2 class="reveal">Built to work the way you do</h2></div>
   <p>Housing AI fits into your process instead of replacing it. It watches quietly, speaks up when something needs attention, and only acts when you say so.</p></div>
   <div class="loop" style="border-top:1px solid var(--line)">
-    <div><span class="mono">[01]</span><h3>Observe</h3><p>Watches your site and plans as you design.</p></div>
-    <div><span class="mono">[02]</span><h3>Advise</h3><p>Flags issues and explains the fix in plain language.</p></div>
-    <div><span class="mono">[03]</span><h3>Act</h3><p>With your approval, it makes the edit right in the model.</p></div>
-    <div><span class="mono">[04]</span><h3>Learn</h3><p>Picks up your firm's standards and gets better every project.</p></div>
+    <div class="reveal"><span class="mono">[01]</span><h3>Observe</h3><p>Watches your site and plans as you design.</p></div>
+    <div class="reveal"><span class="mono">[02]</span><h3>Advise</h3><p>Flags issues and explains the fix in plain language.</p></div>
+    <div class="reveal"><span class="mono">[03]</span><h3>Act</h3><p>With your approval, it makes the edit right in the model.</p></div>
+    <div class="reveal"><span class="mono">[04]</span><h3>Learn</h3><p>Picks up your firm's standards and gets better every project.</p></div>
   </div>
 </section>
 
@@ -509,7 +552,14 @@ const st=document.querySelector('.statement-scene'),[h1a,h1b]=st.querySelectorAl
 const intro=document.querySelector('.intro-scene'),plan=intro.querySelector('.plan'),steps=intro.querySelectorAll('.step');
 const walls=[...plan.querySelectorAll('.walls path')];
 walls.forEach(n=>{n.setAttribute('pathLength',1);n.style.strokeDasharray=1});
-const heroSvg=document.getElementById('house');
+const heroSvg=document.getElementById('house'),art=document.querySelector('.hero-art');
+// blueprint scan: a second copy of the house, visible only inside a circle under the cursor
+const xray=document.createElement('div');xray.className='xray';xray.setAttribute('aria-hidden','true');
+const xr=heroSvg.cloneNode(true);xr.removeAttribute('id');xray.append(xr);art.append(xray);
+if(matchMedia('(hover:hover)').matches){
+  art.addEventListener('pointermove',e=>{const r=art.getBoundingClientRect();art.style.setProperty('--mx',e.clientX-r.left+'px');art.style.setProperty('--my',e.clientY-r.top+'px');art.classList.add('scan')});
+  art.addEventListener('pointerleave',()=>art.classList.remove('scan'));
+}
 function onScroll(){
   const a=prog(st);
   h1a.classList.toggle('off',a>.5);h1b.classList.toggle('off',a<=.5);
@@ -519,9 +569,17 @@ function onScroll(){
   walls.forEach(n=>n.style.strokeDashoffset=Math.max(0,1-b*3));
   plan.classList.toggle('show-dims',b>.3);plan.classList.toggle('show-pins',b>.6);
   steps.forEach((s,i)=>s.classList.toggle('on',!pinned||b>=i/3));
-  heroSvg.style.transform=`translateY(${Math.min(scrollY,900)*.12}px)`;
+  art.style.setProperty('--py',Math.min(scrollY,900)*.1+'px');
 }
 addEventListener('scroll',onScroll,{passive:true});addEventListener('resize',onScroll);onScroll();
+
+// count-up for the dashboard numbers
+const still=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const cio=new IntersectionObserver(es=>es.forEach(x=>{if(!x.isIntersecting)return;cio.unobserve(x.target);
+  const b=x.target,n=+b.textContent,t0=performance.now();if(still||!n)return;
+  (function f(now){const t=Math.min((now-t0)/1100,1);b.textContent=Math.round(n*(1-Math.pow(1-t,3)));if(t<1)requestAnimationFrame(f)})(t0);
+}),{threshold:.6});
+document.querySelectorAll('.kpis b').forEach(b=>cio.observe(b));
 
 // scroll reveal
 const io=new IntersectionObserver(es=>es.forEach(x=>x.isIntersecting&&x.target.classList.add('in')),{threshold:.2});
