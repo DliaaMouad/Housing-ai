@@ -49,7 +49,7 @@ nav{position:sticky;top:0;z-index:20;display:flex;align-items:stretch;justify-co
 .navlinks a.cta{color:var(--accent)}
 
 /* hero */
-.hero-art{position:relative;padding:40px 20px 0;display:flex;justify-content:center;border-bottom:1px solid var(--line)}
+.hero-art{position:relative;overflow:hidden;padding:40px 20px 0;display:flex;justify-content:center;border-bottom:1px solid var(--line)}
 .hero-art svg{width:min(860px,100%);height:auto}
 .hero-art .tag{position:absolute;font-family:var(--mono);font-size:10px;background:var(--ink);color:var(--paper);padding:6px 8px;letter-spacing:.04em}
 .hero-art .tag b{color:var(--accent);font-weight:500}
@@ -82,15 +82,12 @@ nav{position:sticky;top:0;z-index:20;display:flex;align-items:stretch;justify-co
 .card h3{font-size:24px;padding:20px 16px 12px;border-top:1px dashed var(--line)}
 .card p{padding:0 16px 24px;color:var(--muted);font-size:14px;line-height:1.45}
 
-/* statement */
-.statement{padding:140px 20px;text-align:center}
-.statement h2{font-size:clamp(36px,5vw,72px)}
-.statement h2 span{color:var(--muted)}
 
 /* intro plan */
 .intro{display:grid;grid-template-columns:1.3fr 1fr}
-.plan{position:relative;padding:40px;border-right:1px solid var(--line)}
-.plan svg{width:100%;height:auto}
+.plan{padding:32px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:20px;justify-content:center}
+.plan-box{position:relative;width:min(100%,calc((100vh - 200px) * 500 / 380));margin:0 auto}
+.plan svg{width:100%;height:auto;display:block}
 .pin{position:absolute;width:26px;height:26px;background:var(--accent);color:#fff;font-family:var(--mono);font-size:11px;display:grid;place-items:center;border:0;cursor:pointer;animation:pulse 2s infinite}
 @keyframes pulse{50%{box-shadow:0 0 0 8px color-mix(in srgb,var(--accent) 25%,transparent)}}
 .pin.ok{background:var(--blue);animation:none}
@@ -166,9 +163,48 @@ footer a:hover{color:var(--accent)}
 .bigword svg{width:100%;height:auto}
 .legal{display:flex;justify-content:space-between;padding:14px 20px;border-top:1px solid var(--line)}
 
+/* loader: house draws itself while a scan line counts to 100% */
+#loader{position:fixed;inset:0;z-index:100;background:var(--paper);border:1px solid var(--line);margin:8px;transition:opacity .7s .1s,visibility .7s .1s}
+body.loaded #loader{opacity:0;visibility:hidden}
+body.loading{overflow:hidden}
+.ld-house{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);width:min(860px,88vw)}
+.ld-house svg{width:100%;height:auto;display:block}
+.ld-house .shade{opacity:0}
+.ld-scan{position:absolute;left:0;top:50%;height:1px;width:0;background:var(--accent)}
+.ld-scan span{position:absolute;left:24px;bottom:8px;color:var(--accent)}
+.ld-title{position:absolute;left:24px;bottom:24px;font-size:clamp(26px,2.6vw,38px);line-height:.95}
+.ld-info{position:absolute;right:270px;bottom:24px;width:300px;font-size:10px;line-height:1.5}
+.ld-info .rule{border-top:1px dashed var(--ink);margin:6px 0 10px}
+.ld-info dl{display:grid;grid-template-columns:80px 1fr}
+.ld-log{position:absolute;right:24px;bottom:24px;list-style:none;font-size:10px;line-height:1.5;width:220px}
+.ld-log li{opacity:0;transition:opacity .2s}
+.ld-log li.on{opacity:1}
+.lines *{transition:stroke-dashoffset 1.6s cubic-bezier(.6,0,.2,1)}
+#house .shade{transition:opacity 1.2s .3s}
+body.loading #house .shade{opacity:0}
+nav{transition:transform .8s .5s cubic-bezier(.2,.7,.2,1)}
+body.loading nav{transform:translateY(-100%)}
+.hero-art .tag{transition:opacity .6s 1.2s}
+body.loading .hero-art .tag{opacity:0}
+
+/* pinned scroll scenes */
+.pin-scene{position:relative}
+.pin-scene > .sticky{position:sticky;top:57px;height:calc(100vh - 57px)}
+.statement-scene{height:220vh}
+.statement-scene .sticky{display:grid;place-items:center;text-align:center;padding:0 20px}
+.statement-scene h2{grid-area:1/1;font-size:clamp(36px,6vw,92px);transition:opacity .5s,transform .5s}
+.statement-scene h2.off{opacity:0;transform:translateY(40px) scale(.96)}
+.statement-scene .redot{position:absolute;width:10px;height:10px;background:var(--accent);left:50%;top:50%}
+.intro-scene{height:320vh}
+.plan .walls{transition:stroke-dashoffset .2s linear}
+.plan .dims,.plan .pin{opacity:0;transform:scale(.6);transition:opacity .4s,transform .4s}
+.plan.show-dims .dims,.plan.show-pins .pin{opacity:1;transform:none}
+.intro-copy .step{opacity:.25;transition:opacity .4s}
+.intro-copy .step.on{opacity:1}
+
 .reveal{opacity:0;transform:translateY(24px);transition:opacity .8s,transform .8s}
 .reveal.in{opacity:1;transform:none}
-@media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none}.marquee div,.pin{animation:none}}
+@media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none}.marquee div,.pin{animation:none}#loader{display:none}}
 
 @media (max-width:900px){
   .navlinks a:not(.cta){display:none}
@@ -180,11 +216,28 @@ footer a:hover{color:var(--accent)}
   .card,.loop div{border-bottom:1px solid var(--line)}
   .statement{padding:80px 16px}
   .hero-art .tag{display:none}
+  .ld-info{display:none}
+  .intro-scene{height:auto}
+  .intro-scene .sticky{position:static;height:auto}
+  .intro-copy .step{opacity:1}
 }
 @media (max-width:520px){.cards,.loop,form{grid-template-columns:1fr}.card,.loop div{border-right:0}form label{border-right:0!important}}
 </style>
 </head>
-<body>
+<body class="loading">
+<div id="loader" aria-hidden="true">
+  <div class="ld-house"></div>
+  <div class="ld-scan"><span class="mono">0%</span></div>
+  <h2 class="ld-title">Welcome to<br>Housing AI</h2>
+  <div class="ld-info mono">
+    <div>Welcome to Housing AI</div><div class="rule"></div>
+    <dl><dt>Type</dt><dd>: Housing / AI software</dd><dt>Founded</dt><dd>: 2026</dd><dt>Focus</dt><dd>: Zoning, permits and code<br>&nbsp; compliance for new homes</dd><dt>Status</dt><dd>: Booting agent</dd></dl>
+  </div>
+  <ol class="ld-log mono">
+    <li>001 Load zoning maps</li><li>002 Parse building code</li><li>003 Read site survey</li><li>004 Import floor plans</li><li>005 Check setbacks</li>
+    <li>006 Check egress</li><li>007 Count parking</li><li>008 Score feasibility</li><li>009 Run diagnostics</li><li>010 Start agent</li>
+  </ol>
+</div>
 <div class="wrap">
 
 <nav>
@@ -202,29 +255,37 @@ footer a:hover{color:var(--accent)}
 
 <header id="top" class="sec">
   <div class="hero-art">
-    <!-- line-art elevation of a mid-rise housing block -->
-    <svg viewBox="0 0 860 380" fill="none" stroke="#0D1B2A" stroke-width="1.2" aria-hidden="true">
-      <line x1="20" y1="350" x2="840" y2="350"/>
-      <rect x="170" y="90" width="520" height="260"/>
-      <path d="M150 90h560M170 70h520v20"/>
-      <g id="win">
-        <rect x="200" y="120" width="60" height="44"/><line x1="230" y1="120" x2="230" y2="164"/>
+    <!-- line-art elevation of a modernist two-storey house (own drawing) -->
+    <svg id="house" viewBox="0 0 1100 470" fill="none" stroke="#0D1B2A" stroke-width="1.3" aria-hidden="true">
+      <defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="#A9B6C4" stroke-width="1"/></pattern></defs>
+      <g class="shade" stroke="none">
+        <rect x="300" y="300" width="130" height="140" fill="url(#hatch)"/>
+        <rect x="680" y="330" width="320" height="110" fill="url(#hatch)"/>
+        <rect x="448" y="70" width="212" height="310" fill="#D3DCE6"/>
+        <rect x="198" y="60" width="102" height="90" fill="#D3DCE6"/><rect x="808" y="60" width="102" height="90" fill="#D3DCE6"/>
+        <rect x="318" y="164" width="112" height="106" fill="#DCE3EB"/><rect x="808" y="164" width="102" height="106" fill="#DCE3EB"/>
+        <path d="M180 40h18v400h-18zM300 40h18v260h-18zM430 10h18v430h-18zM660 10h18v430h-18zM790 40h18v290h-18zM910 40h18v290h-18z" fill="#C3CEDA"/>
+        <rect x="236" y="300" width="10" height="10" fill="#FF6B2C"/><rect x="760" y="218" width="10" height="10" fill="#FF6B2C"/><rect x="548" y="196" width="10" height="10" fill="#FF6B2C"/>
       </g>
-      <use href="#win" x="100"/><use href="#win" x="200"/><use href="#win" x="300"/><use href="#win" x="400"/>
-      <use href="#win" y="70"/><use href="#win" x="100" y="70"/><use href="#win" x="200" y="70"/><use href="#win" x="300" y="70"/><use href="#win" x="400" y="70"/>
-      <use href="#win" y="140"/><use href="#win" x="100" y="140"/><use href="#win" x="300" y="140"/><use href="#win" x="400" y="140"/>
-      <rect x="395" y="270" width="70" height="80"/><line x1="430" y1="270" x2="430" y2="350"/>
-      <path d="M380 270h100"/>
-      <g stroke="#5A6B7D"><path d="M190 175h80M290 175h80M490 175h80M590 175h80M190 245h80M590 245h80"/></g>
-      <!-- trees -->
-      <g stroke="#5A6B7D"><circle cx="90" cy="290" r="34"/><line x1="90" y1="324" x2="90" y2="350"/><circle cx="770" cy="296" r="28"/><line x1="770" y1="324" x2="770" y2="350"/></g>
-      <!-- dimension -->
-      <g stroke="#2B59FF"><path d="M170 372h520M170 366v12M690 366v12"/></g>
-      <rect x="296" y="196" width="10" height="10" fill="#FF6B2C" stroke="none"/>
-      <rect x="586" y="126" width="10" height="10" fill="#FF6B2C" stroke="none"/>
+      <g class="lines">
+        <path d="M40 440H1060"/>
+        <rect x="180" y="40" width="18" height="400"/><rect x="300" y="40" width="18" height="400"/>
+        <rect x="430" y="10" width="18" height="430"/><rect x="660" y="10" width="18" height="430"/>
+        <rect x="790" y="40" width="18" height="400"/><rect x="910" y="40" width="18" height="400"/>
+        <rect x="180" y="40" width="190" height="20"/><rect x="720" y="40" width="208" height="20"/><rect x="430" y="50" width="248" height="20"/>
+        <rect x="198" y="150" width="712" height="14"/><rect x="198" y="270" width="712" height="14"/>
+        <path d="M501 70V380M554 70V380M607 70V380M448 380H660"/>
+        <rect x="198" y="60" width="102" height="90"/><rect x="808" y="60" width="102" height="90"/>
+        <rect x="318" y="164" width="112" height="106"/><rect x="808" y="164" width="102" height="106"/>
+        <path d="M249 60v90M859 60v90M374 164v106"/>
+        <rect x="300" y="300" width="130" height="140"/><rect x="680" y="330" width="320" height="110"/>
+        <path d="M80 360V440M96 360v80M80 370H300M80 380H300M80 390H300M80 400H300M80 410H300M80 420H300M80 430H300"/>
+        <path d="M130 440V250M130 340 90 290 70 272M130 315 168 268 182 242M130 292 104 246M130 282 152 226M90 290 84 262M168 268 196 260"/>
+        <path d="M1015 440V260M1015 345 980 300 962 284M1015 320 1050 278 1064 254M1015 298 992 256M1015 286 1036 234M980 300 974 272"/>
+      </g>
     </svg>
-    <div class="tag" style="left:14%;top:38%"><b>R-4 ZONING</b><br>MAX HEIGHT 45FT · OK</div>
-    <div class="tag" style="right:12%;top:22%"><b>IRC R310.1</b><br>EGRESS WINDOW TOO SMALL</div>
+    <div class="tag" style="left:11%;top:30%"><b>R-4 ZONING</b><br>MAX HEIGHT 35FT · OK</div>
+    <div class="tag" style="right:9%;top:16%"><b>IRC R310.1</b><br>EGRESS WINDOW TOO SMALL</div>
   </div>
   <div class="hero-bottom">
     <h1 class="reveal">The AI agent for every home you build</h1>
@@ -265,19 +326,25 @@ footer a:hover{color:var(--accent)}
   </div>
 </section>
 
-<section class="sec statement">
-  <h2 class="reveal">Right there with you<br><span>from lot to keys</span></h2>
+<section class="sec pin-scene statement-scene">
+  <div class="sticky">
+    <h2>Right there with you</h2>
+    <h2 class="off">From lot to keys</h2>
+    <i class="redot"></i>
+  </div>
 </section>
 
-<section id="how" class="sec intro">
+<section id="how" class="sec pin-scene intro-scene">
+ <div class="sticky intro">
   <div class="plan">
     <span class="mono label">Introduction · click a flag</span>
+    <div class="plan-box">
     <!-- simplified unit floor plan -->
     <svg viewBox="0 0 500 380" fill="none" stroke="#0D1B2A" aria-label="Floor plan with flagged issues">
-      <g stroke-width="8"><path d="M40 40h420v300H40z"/><path d="M240 40v130M240 220v120M40 190h120M200 190h40M240 150h100M390 150h70"/></g>
+      <g class="walls" stroke-width="8"><path d="M40 40h420v300H40z"/><path d="M240 40v130M240 220v120M40 190h120M200 190h40M240 150h100M390 150h70"/></g>
       <g stroke="#5A6B7D" stroke-width="1.2"><path d="M160 190a40 40 0 0 1 40-40M340 150a50 50 0 0 1 50 0"/><rect x="60" y="60" width="80" height="50"/><rect x="290" y="250" width="140" height="70"/><circle cx="360" cy="285" r="14"/><rect x="60" y="230" width="40" height="90"/></g>
-      <g stroke="#2B59FF" stroke-width="1"><path d="M40 20h420M40 14v12M460 14v12"/></g>
-      <text x="230" y="14" font-family="JetBrains Mono" font-size="10" fill="#2B59FF" stroke="none">10.2 M</text>
+      <g class="dims"><g stroke="#2B59FF" stroke-width="1"><path d="M40 20h420M40 14v12M460 14v12"/></g>
+      <text x="230" y="14" font-family="JetBrains Mono" font-size="10" fill="#2B59FF" stroke="none">10.2 M</text></g>
       <text x="80" y="140" font-family="JetBrains Mono" font-size="10" fill="#5A6B7D" stroke="none">BED 1</text>
       <text x="300" y="100" font-family="JetBrains Mono" font-size="10" fill="#5A6B7D" stroke="none">BED 2</text>
       <text x="110" y="270" font-family="JetBrains Mono" font-size="10" fill="#5A6B7D" stroke="none">KITCHEN</text>
@@ -287,12 +354,14 @@ footer a:hover{color:var(--accent)}
     <button class="pin" style="left:63%;top:34%" data-i="1">02</button>
     <button class="pin" style="left:40%;top:72%" data-i="2">03</button>
     <div class="popover" role="dialog"><span class="mono"></span><p></p><button type="button">Approve fix</button></div>
+    </div>
   </div>
   <div class="intro-copy">
     <div class="step"><span class="mono label">[01] The problem</span>Developers and architects spend weeks checking plans against zoning and code, work that pulls focus from actually building.</div>
     <div class="step"><span class="mono label">[02] The pattern</span>Most of it is rule-based and repetitive. It should not need a person reading code books every time.</div>
     <div class="step"><span class="mono label">[03] The fix</span>Housing AI sits inside your design tool. It sees your plans, flags issues, and makes the edit when you say yes.</div>
   </div>
+ </div>
 </section>
 
 <section id="product" class="sec">
@@ -413,6 +482,46 @@ pop.querySelector('button').onclick=()=>{cur.classList.add('ok');cur.textContent
 document.getElementById('form').addEventListener('submit',e=>{
   e.preventDefault();e.target.style.display='none';document.querySelector('.thanks').style.display='block';
 });
+
+// loader: draw the house line by line, scan line counts to 100%, then reveal the page
+const drawable=el=>el.querySelectorAll('.lines > *');
+const startLines=el=>drawable(el).forEach(n=>{n.setAttribute('pathLength',1);n.style.strokeDasharray=1;n.style.strokeDashoffset=1});
+const loader=document.getElementById('loader');
+if(matchMedia('(prefers-reduced-motion: reduce)').matches){document.body.className='loaded'}
+else{
+  const clone=document.getElementById('house').cloneNode(true);clone.removeAttribute('id');
+  loader.querySelector('.ld-house').append(clone);startLines(clone);
+  const parts=[...drawable(clone)],logs=loader.querySelectorAll('.ld-log li'),scan=loader.querySelector('.ld-scan'),pct=scan.querySelector('span');
+  const T=3600,t0=performance.now();
+  (function tick(now){
+    const t=Math.min((now-t0)/T,1),p=1-Math.pow(1-t,2);
+    scan.style.width=p*100+'%';pct.textContent=Math.round(p*100)+'%';
+    parts.forEach((n,i)=>{if(p*parts.length*1.1>i)n.style.strokeDashoffset=0});
+    logs.forEach((l,i)=>l.classList.toggle('on',p*10>=i+.5));
+    if(t<1)requestAnimationFrame(tick);
+    else setTimeout(()=>{document.body.classList.replace('loading','loaded')},700);
+  })(t0);
+}
+
+// pinned scenes: progress 0..1 while the sticky part is held
+const prog=s=>{const r=s.getBoundingClientRect();return Math.min(Math.max(-r.top/(r.height-innerHeight),0),1)};
+const st=document.querySelector('.statement-scene'),[h1a,h1b]=st.querySelectorAll('h2'),dot=st.querySelector('.redot');
+const intro=document.querySelector('.intro-scene'),plan=intro.querySelector('.plan'),steps=intro.querySelectorAll('.step');
+const walls=[...plan.querySelectorAll('.walls path')];
+walls.forEach(n=>{n.setAttribute('pathLength',1);n.style.strokeDasharray=1});
+const heroSvg=document.getElementById('house');
+function onScroll(){
+  const a=prog(st);
+  h1a.classList.toggle('off',a>.5);h1b.classList.toggle('off',a<=.5);
+  dot.style.transform=`translate(-50%,-50%) translateX(${(a-.5)*60}vw)`;
+  const pinned=getComputedStyle(intro.querySelector('.sticky')).position==='sticky';
+  const b=pinned?prog(intro):1;
+  walls.forEach(n=>n.style.strokeDashoffset=Math.max(0,1-b*3));
+  plan.classList.toggle('show-dims',b>.3);plan.classList.toggle('show-pins',b>.6);
+  steps.forEach((s,i)=>s.classList.toggle('on',!pinned||b>=i/3));
+  heroSvg.style.transform=`translateY(${Math.min(scrollY,900)*.12}px)`;
+}
+addEventListener('scroll',onScroll,{passive:true});addEventListener('resize',onScroll);onScroll();
 
 // scroll reveal
 const io=new IntersectionObserver(es=>es.forEach(x=>x.isIntersecting&&x.target.classList.add('in')),{threshold:.2});
