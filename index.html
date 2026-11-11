@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Housing AI | The AI agent for every home you build</title>
+<meta name="description" content="Housing AI checks your sites and plans against zoning and building code, flags problems early, and fixes them with your approval, so more homes get built, faster.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230D1B2A'/%3E%3Cpath d='M6 16 16 7l10 9v10H6z' fill='none' stroke='%23FF6B2C' stroke-width='2.5'/%3E%3C/svg%3E">
+<style>
+:root{
+  --paper:#EEF2F6;      /* cool blueprint paper */
+  --paper-2:#E3E9F0;
+  --ink:#0D1B2A;        /* deep navy */
+  --muted:#5A6B7D;
+  --line:#C5D0DC;
+  --accent:#FF6B2C;     /* safety orange */
+  --blue:#2B59FF;       /* blueprint blue */
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --sans:'Inter Tight',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:96px 96px;background-position:-1px -1px;background-attachment:fixed}
+body::before{content:"";position:fixed;inset:0;background:var(--paper);opacity:.86;z-index:-1}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1400px;margin:0 auto;border-left:1px solid var(--line);border-right:1px solid var(--line);background:color-mix(in srgb,var(--paper) 70%,transparent)}
+.mono{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+h1,h2,h3{font-weight:600;text-transform:uppercase;letter-spacing:-.03em;line-height:.92}
+.sec{border-bottom:1px solid var(--line)}
+.label{color:var(--muted)}
+.accent{color:var(--accent)}
+.btn{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:14px 18px;border:1px solid var(--ink);transition:.2s}
+.btn:hover{background:var(--ink);color:var(--paper)}
+.btn.solid{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.solid:hover{background:var(--ink);border-color:var(--ink)}
+.dot{display:inline-block;width:8px;height:8px;background:var(--accent)}
+
+/* nav */
+nav{position:sticky;top:0;z-index:20;display:flex;align-items:stretch;justify-content:space-between;border-bottom:1px solid var(--line);background:var(--paper)}
+.logo{display:flex;align-items:center;gap:10px;padding:16px 20px;font-weight:600;font-size:17px;letter-spacing:-.02em}
+.navlinks{display:flex}
+.navlinks a{display:flex;align-items:center;padding:0 28px;border-left:1px solid var(--line)}
+.navlinks a:hover{background:var(--paper-2)}
+.navlinks a.cta{color:var(--accent)}
+
+/* hero */
+.hero-art{position:relative;padding:40px 20px 0;display:flex;justify-content:center;border-bottom:1px solid var(--line)}
+.hero-art svg{width:min(860px,100%);height:auto}
+.hero-art .tag{position:absolute;font-family:var(--mono);font-size:10px;background:var(--ink);color:var(--paper);padding:6px 8px;letter-spacing:.04em}
+.hero-art .tag b{color:var(--accent);font-weight:500}
+.hero-bottom{display:grid;grid-template-columns:1.4fr 1fr 220px}
+.hero-bottom > *{padding:24px 20px}
+.hero-bottom h1{font-size:clamp(40px,5.2vw,76px)}
+.hero-bottom p{border-left:1px solid var(--line);font-size:15px;line-height:1.45;color:var(--muted)}
+.hero-bottom .more{border-left:1px solid var(--line);display:flex;flex-direction:column;justify-content:space-between}
+.marquee{overflow:hidden;border-top:1px solid var(--line);white-space:nowrap}
+.marquee div{display:inline-flex;gap:48px;padding:12px 0;animation:mq 30s linear infinite}
+.marquee span::before{content:"◇ ";color:var(--accent)}
+@keyframes mq{to{transform:translateX(-50%)}}
+
+/* clients */
+.clients{display:grid;grid-template-columns:repeat(5,1fr)}
+.clients div{padding:28px 10px;text-align:center;font-weight:600;letter-spacing:.12em;font-size:13px;border-right:1px solid var(--line)}
+.clients div:last-child{border:0}
+.clients-note{padding:10px 20px;border-top:1px solid var(--line)}
+
+/* problems */
+.head{display:grid;grid-template-columns:1.6fr 1fr;gap:40px;padding:48px 20px}
+.head h2{font-size:clamp(32px,4vw,56px);margin-top:14px}
+.head p{align-self:end;color:var(--muted);line-height:1.5}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line)}
+.card{border-right:1px solid var(--line);display:flex;flex-direction:column}
+.card:last-child{border:0}
+.card .top{display:flex;justify-content:space-between;padding:14px 16px;border-bottom:1px dashed var(--line)}
+.card svg{height:180px;width:100%;padding:28px;stroke:var(--ink);fill:none;stroke-width:1.2;transition:.3s}
+.card:hover svg{stroke:var(--blue)}
+.card h3{font-size:24px;padding:20px 16px 12px;border-top:1px dashed var(--line)}
+.card p{padding:0 16px 24px;color:var(--muted);font-size:14px;line-height:1.45}
+
+/* statement */
+.statement{padding:140px 20px;text-align:center}
+.statement h2{font-size:clamp(36px,5vw,72px)}
+.statement h2 span{color:var(--muted)}
+
+/* intro plan */
+.intro{display:grid;grid-template-columns:1.3fr 1fr}
+.plan{position:relative;padding:40px;border-right:1px solid var(--line)}
+.plan svg{width:100%;height:auto}
+.pin{position:absolute;width:26px;height:26px;background:var(--accent);color:#fff;font-family:var(--mono);font-size:11px;display:grid;place-items:center;border:0;cursor:pointer;animation:pulse 2s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 8px color-mix(in srgb,var(--accent) 25%,transparent)}}
+.pin.ok{background:var(--blue);animation:none}
+.popover{position:absolute;width:260px;background:var(--ink);color:var(--paper);padding:14px;font-size:13px;line-height:1.4;display:none;z-index:5}
+.popover .mono{color:var(--accent);display:block;margin-bottom:6px}
+.popover button{margin-top:10px;background:var(--accent);color:#fff;border:0;padding:8px 10px;font-family:var(--mono);font-size:10px;letter-spacing:.06em;cursor:pointer}
+.intro-copy{display:flex;flex-direction:column}
+.intro-copy .step{padding:28px 24px;border-bottom:1px solid var(--line);font-size:19px;line-height:1.35}
+.intro-copy .step .mono{display:block;margin-bottom:10px}
+.intro-copy .step:last-child{border:0;flex:1}
+
+/* products */
+.products{display:grid;grid-template-columns:1fr 1fr}
+.product{padding:32px 24px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:20px}
+.product:last-child{border:0}
+.product h3{font-size:clamp(28px,3vw,42px)}
+.product p{color:var(--muted);line-height:1.5}
+.product ul{list-style:none;border-top:1px solid var(--line)}
+.product li{padding:12px 0;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:center;font-size:15px}
+.product li::before{content:"";width:6px;height:6px;background:var(--blue)}
+.mock{background:var(--paper);border:1px solid var(--ink);font-size:12px}
+.mock .bar{display:flex;justify-content:space-between;padding:8px 10px;background:var(--ink);color:var(--paper)}
+.mock .row{display:flex;justify-content:space-between;align-items:center;padding:10px;border-top:1px solid var(--line)}
+.mock .row small{color:var(--muted);display:block}
+.mock .kpis{display:grid;grid-template-columns:repeat(4,1fr)}
+.mock .kpis div{padding:10px;border-right:1px solid var(--line)}
+.mock .kpis div:last-child{border:0}
+.mock .kpis b{display:block;font-size:22px;margin-top:4px}
+.chip{font-family:var(--mono);font-size:10px;padding:4px 7px;background:var(--accent);color:#fff}
+.chip.b{background:var(--blue)}
+
+/* loop */
+.loop{display:grid;grid-template-columns:repeat(4,1fr)}
+.loop div{padding:28px 20px 40px;border-right:1px solid var(--line);transition:.25s}
+.loop div:last-child{border:0}
+.loop div:hover{background:var(--ink);color:var(--paper)}
+.loop h3{font-size:32px;margin:40px 0 10px}
+.loop p{font-size:14px;line-height:1.45;opacity:.75}
+
+/* use cases */
+.uses{display:grid;grid-template-columns:1fr 1.2fr}
+.uses-art{border-right:1px solid var(--line);padding:40px;display:flex;flex-direction:column;justify-content:space-between;gap:30px}
+.uses-art h2{font-size:clamp(34px,4vw,58px)}
+details{border-bottom:1px solid var(--line)}
+summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;padding:20px 24px;font-weight:600;font-size:20px;text-transform:uppercase;letter-spacing:-.01em}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";font-family:var(--mono);color:var(--muted)}
+details[open] summary::after{content:"–";color:var(--accent)}
+details p{padding:0 24px 20px;color:var(--muted);line-height:1.5;max-width:520px}
+
+/* contact */
+.contact{display:grid;grid-template-columns:1fr 1fr}
+.contact > div{padding:48px 24px}
+.contact > div:first-child{border-right:1px solid var(--line)}
+.contact h2{font-size:clamp(36px,4.5vw,64px);margin:14px 0 20px}
+form{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--line)}
+form label{display:flex;flex-direction:column;gap:6px;padding:14px;border-bottom:1px solid var(--line)}
+form label:nth-child(odd){border-right:1px solid var(--line)}
+form label.full{grid-column:1/-1;border-right:0}
+input,textarea,select{font:inherit;font-size:15px;background:transparent;border:0;outline:0;color:var(--ink);resize:vertical}
+form button{grid-column:1/-1;border:0;cursor:pointer;justify-content:center}
+.thanks{display:none;padding:30px;border:1px solid var(--ink);background:var(--ink);color:var(--paper)}
+.thanks h3{font-size:30px;margin-bottom:8px}
+
+/* footer */
+footer .grid{display:grid;grid-template-columns:1.3fr repeat(3,1fr)}
+footer .grid > div{padding:24px 20px;border-right:1px solid var(--line)}
+footer .grid > div:last-child{border:0}
+footer h3{font-size:28px}
+footer ul{list-style:none;margin-top:14px;display:grid;gap:8px;font-size:14px}
+footer a:hover{color:var(--accent)}
+.bigword{border-top:1px solid var(--line);padding:30px 20px}
+.bigword svg{width:100%;height:auto}
+.legal{display:flex;justify-content:space-between;padding:14px 20px;border-top:1px solid var(--line)}
+
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .8s,transform .8s}
+.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none}.marquee div,.pin{animation:none}}
+
+@media (max-width:900px){
+  .navlinks a:not(.cta){display:none}
+  .hero-bottom,.head,.intro,.products,.uses,.contact,footer .grid{grid-template-columns:1fr}
+  .hero-bottom p,.hero-bottom .more,.plan,.product,.uses-art,.contact > div:first-child,footer .grid > div{border-left:0;border-right:0;border-bottom:1px solid var(--line)}
+  .cards,.loop{grid-template-columns:1fr 1fr}
+  .clients{grid-template-columns:repeat(3,1fr)}
+  .card:nth-child(2n),.loop div:nth-child(2n){border-right:0}
+  .card,.loop div{border-bottom:1px solid var(--line)}
+  .statement{padding:80px 16px}
+  .hero-art .tag{display:none}
+}
+@media (max-width:520px){.cards,.loop,form{grid-template-columns:1fr}.card,.loop div{border-right:0}form label{border-right:0!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<nav>
+  <a class="logo" href="#top" aria-label="Housing AI home">
+    <svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true"><path d="M5 15 16 6l11 9v11H5z" fill="none" stroke="currentColor" stroke-width="2"/><rect x="13" y="18" width="6" height="8" fill="var(--accent)"/></svg>
+    HOUSING AI
+  </a>
+  <div class="navlinks mono">
+    <a href="#product">Product</a>
+    <a href="#how">How it works</a>
+    <a href="#uses">Who it's for</a>
+    <a class="cta" href="#contact">Book a demo →</a>
+  </div>
+</nav>
+
+<header id="top" class="sec">
+  <div class="hero-art">
+    <!-- line-art elevation of a mid-rise housing block -->
+    <svg viewBox="0 0 860 380" fill="none" stroke="#0D1B2A" stroke-width="1.2" aria-hidden="true">
+      <line x1="20" y1="350" x2="840" y2="350"/>
+      <rect x="170" y="90" width="520" height="260"/>
+      <path d="M150 90h560M170 70h520v20"/>
+      <g id="win">
+        <rect x="200" y="120" width="60" height="44"/><line x1="230" y1="120" x2="230" y2="164"/>
+      </g>
+      <use href="#win" x="100"/><use href="#win" x="200"/><use href="#win" x="300"/><use href="#win" x="400"/>
+      <use href="#win" y="70"/><use href="#win" x="100" y="70"/><use href="#win" x="200" y="70"/><use href="#win" x="300" y="70"/><use href="#win" x="400" y="70"/>
+      <use href="#win" y="140"/><use href="#win" x="100" y="140"/><use href="#win" x="300" y="140"/><use href="#win" x="400" y="140"/>
+      <rect x="395" y="270" width="70" height="80"/><line x1="430" y1="270" x2="430" y2="350"/>
+      <path d="M380 270h100"/>
+      <g stroke="#5A6B7D"><path d="M190 175h80M290 175h80M490 175h80M590 175h80M190 245h80M590 245h80"/></g>
+      <!-- trees -->
+      <g stroke="#5A6B7D"><circle cx="90" cy="290" r="34"/><line x1="90" y1="324" x2="90" y2="350"/><circle cx="770" cy="296" r="28"/><line x1="770" y1="324" x2="770" y2="350"/></g>
+      <!-- dimension -->
+      <g stroke="#2B59FF"><path d="M170 372h520M170 366v12M690 366v12"/></g>
+      <rect x="296" y="196" width="10" height="10" fill="#FF6B2C" stroke="none"/>
+      <rect x="586" y="126" width="10" height="10" fill="#FF6B2C" stroke="none"/>
+    </svg>
+    <div class="tag" style="left:14%;top:38%"><b>R-4 ZONING</b><br>MAX HEIGHT 45FT · OK</div>
+    <div class="tag" style="right:12%;top:22%"><b>IRC R310.1</b><br>EGRESS WINDOW TOO SMALL</div>
+  </div>
+  <div class="hero-bottom">
+    <h1 class="reveal">The AI agent for every home you build</h1>
+    <p>Housing AI reads your site, your plans and the local code. It catches zoning and permit problems before the city does, and fixes them once you approve.</p>
+    <div class="more"><span class="mono label">Est. 2026 · Housing tech</span><a class="btn solid" href="#contact">Discover more →</a></div>
+  </div>
+  <div class="marquee mono" aria-hidden="true"><div>
+    <span>Faster approvals</span><span>Fewer redesigns</span><span>Less paperwork</span><span>More homes</span>
+    <span>Faster approvals</span><span>Fewer redesigns</span><span>Less paperwork</span><span>More homes</span>
+    <span>Faster approvals</span><span>Fewer redesigns</span><span>Less paperwork</span><span>More homes</span>
+    <span>Faster approvals</span><span>Fewer redesigns</span><span>Less paperwork</span><span>More homes</span>
+  </div></div>
+</header>
+
+<section class="sec">
+  <div class="clients"><div>NORTHGATE</div><div>CEDAR &amp; CO</div><div>URBANLOT</div><div>MERIDIAN</div><div>OPENDOOR HOMES</div></div>
+  <p class="clients-note mono label">Works with the tools you already use: Revit, ArchiCAD, AutoCAD, SketchUp and your permit portal.</p>
+</section>
+
+<section class="sec">
+  <div class="head">
+    <div><span class="mono label">Problems</span><h2 class="reveal">Building homes is slow. Paperwork makes it slower.</h2></div>
+    <p>Every housing project stalls in the same places: unclear zoning, plan reviews that come back red, and hours lost checking rules by hand.</p>
+  </div>
+  <div class="cards">
+    <div class="card"><div class="top mono"><span>Manual</span><span class="label">[01]</span></div>
+      <svg viewBox="0 0 120 100"><path d="M30 60 60 40l30 20v30H30z"/><path d="M30 60 60 80l30-20M60 80v10"/></svg>
+      <h3>Every code check is on you</h3><p>Setbacks, egress, parking ratios. You check them one by one, project after project.</p></div>
+    <div class="card"><div class="top mono"><span><i class="dot"></i> Scattered</span><span class="label">[02]</span></div>
+      <svg viewBox="0 0 120 100"><rect x="20" y="20" width="30" height="36"/><rect x="70" y="44" width="30" height="36"/><path d="M50 38h10v24h10" stroke-dasharray="3 3"/></svg>
+      <h3>Rules live in a hundred PDFs</h3><p>Zoning maps, city amendments and building code sit in different places, and none of them talk to your model.</p></div>
+    <div class="card"><div class="top mono"><span>Late</span><span class="label">[03]</span></div>
+      <svg viewBox="0 0 120 100"><circle cx="60" cy="50" r="32"/><path d="M60 30v20l14 10"/></svg>
+      <h3>Problems show up at review</h3><p>You find out a unit fails code when the plan reviewer sends it back, weeks later.</p></div>
+    <div class="card"><div class="top mono"><span>Costly</span><span class="label">[04]</span></div>
+      <svg viewBox="0 0 120 100"><path d="M20 80h80M30 80V60M50 80V45M70 80V35M90 80V20"/></svg>
+      <h3>Small delays cost real money</h3><p>Each month a project waits adds carrying costs, and pushes homes further out of reach.</p></div>
+  </div>
+</section>
+
+<section class="sec statement">
+  <h2 class="reveal">Right there with you<br><span>from lot to keys</span></h2>
+</section>
+
+<section id="how" class="sec intro">
+  <div class="plan">
+    <span class="mono label">Introduction · click a flag</span>
+    <!-- simplified unit floor plan -->
+    <svg viewBox="0 0 500 380" fill="none" stroke="#0D1B2A" aria-label="Floor plan with flagged issues">
+      <g stroke-width="8"><path d="M40 40h420v300H40z"/><path d="M240 40v130M240 220v120M40 190h120M200 190h40M240 150h100M390 150h70"/></g>
+      <g stroke="#5A6B7D" stroke-width="1.2"><path d="M160 190a40 40 0 0 1 40-40M340 150a50 50 0 0 1 50 0"/><rect x="60" y="60" width="80" height="50"/><rect x="290" y="250" width="140" height="70"/><circle cx="360" cy="285" r="14"/><rect x="60" y="230" width="40" height="90"/></g>
+      <g stroke="#2B59FF" stroke-width="1"><path d="M40 20h420M40 14v12M460 14v12"/></g>
+      <text x="230" y="14" font-family="JetBrains Mono" font-size="10" fill="#2B59FF" stroke="none">10.2 M</text>
+      <text x="80" y="140" font-family="JetBrains Mono" font-size="10" fill="#5A6B7D" stroke="none">BED 1</text>
+      <text x="300" y="100" font-family="JetBrains Mono" font-size="10" fill="#5A6B7D" stroke="none">BED 2</text>
+      <text x="110" y="270" font-family="JetBrains Mono" font-size="10" fill="#5A6B7D" stroke="none">KITCHEN</text>
+      <text x="300" y="200" font-family="JetBrains Mono" font-size="10" fill="#5A6B7D" stroke="none">LIVING</text>
+    </svg>
+    <button class="pin" style="left:22%;top:27%" data-i="0">01</button>
+    <button class="pin" style="left:63%;top:34%" data-i="1">02</button>
+    <button class="pin" style="left:40%;top:72%" data-i="2">03</button>
+    <div class="popover" role="dialog"><span class="mono"></span><p></p><button type="button">Approve fix</button></div>
+  </div>
+  <div class="intro-copy">
+    <div class="step"><span class="mono label">[01] The problem</span>Developers and architects spend weeks checking plans against zoning and code, work that pulls focus from actually building.</div>
+    <div class="step"><span class="mono label">[02] The pattern</span>Most of it is rule-based and repetitive. It should not need a person reading code books every time.</div>
+    <div class="step"><span class="mono label">[03] The fix</span>Housing AI sits inside your design tool. It sees your plans, flags issues, and makes the edit when you say yes.</div>
+  </div>
+</section>
+
+<section id="product" class="sec">
+  <div class="head"><div><span class="mono label">Your site. Your plans. Connected.</span><h2 class="reveal">Two tools, one agent</h2></div>
+  <p>Use Housing AI inside your model while you design, or from the dashboard to track every project in your pipeline.</p></div>
+  <div class="products" style="border-top:1px solid var(--line)">
+    <div class="product">
+      <span class="mono label">[01]</span>
+      <h3>Housing Copilot</h3>
+      <p>Runs inside the design software you already use. It reads your plans, knows the local rules, and suggests changes. Nothing happens without your approval.</p>
+      <div class="mock">
+        <div class="bar mono"><span>Copilot · Unit 3B</span><span>Checking…</span></div>
+        <div class="row"><div><b>Bedroom egress window</b><small>IRC R310.2.1 · opening 4.9 sq ft, needs 5.7</small></div><span class="chip">Fix</span></div>
+        <div class="row"><div><b>Front setback</b><small>Zoning R-4 · 20 ft required, 22 ft drawn</small></div><span class="chip b">Pass</span></div>
+        <div class="row"><div><b>Accessible route</b><small>ICC A117.1 · door clear width 30", needs 32"</small></div><span class="chip">Fix</span></div>
+      </div>
+      <ul><li>Works with Revit, ArchiCAD, AutoCAD, SketchUp</li><li>Knows zoning and building code for your city</li><li>Suggests fixes while you work</li><li>Edits the model after you approve</li></ul>
+      <a class="btn" href="#contact">Learn more →</a>
+    </div>
+    <div class="product">
+      <span class="mono label">[02]</span>
+      <h3>Housing Dashboard</h3>
+      <p>Ask questions about any lot or project and get answers based on your site, unit mix and local code, not just the rule in isolation.</p>
+      <div class="mock">
+        <div class="bar mono"><span>Pipeline</span><span>Q4 2026</span></div>
+        <div class="kpis"><div class="mono label">Projects<b style="color:var(--ink)">12</b></div><div class="mono label">Homes<b style="color:var(--ink)">846</b></div><div class="mono label">Open issues<b style="color:var(--accent)">9</b></div><div class="mono label">Permit ready<b style="color:var(--blue)">7</b></div></div>
+        <div class="row"><div><b>Maple St. Townhomes</b><small>24 units · 2 issues left</small></div><span class="chip">Review</span></div>
+        <div class="row"><div><b>Riverside Apartments</b><small>180 units · permit ready</small></div><span class="chip b">Ready</span></div>
+      </div>
+      <ul><li>See how many homes a lot can hold</li><li>Track every project's open issues</li><li>Export permit-ready reports</li></ul>
+      <a class="btn" href="#contact">Learn more →</a>
+    </div>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="head"><div><span class="mono label">Why us</span><h2 class="reveal">Built to work the way you do</h2></div>
+  <p>Housing AI fits into your process instead of replacing it. It watches quietly, speaks up when something needs attention, and only acts when you say so.</p></div>
+  <div class="loop" style="border-top:1px solid var(--line)">
+    <div><span class="mono">[01]</span><h3>Observe</h3><p>Watches your site and plans as you design.</p></div>
+    <div><span class="mono">[02]</span><h3>Advise</h3><p>Flags issues and explains the fix in plain language.</p></div>
+    <div><span class="mono">[03]</span><h3>Act</h3><p>With your approval, it makes the edit right in the model.</p></div>
+    <div><span class="mono">[04]</span><h3>Learn</h3><p>Picks up your firm's standards and gets better every project.</p></div>
+  </div>
+</section>
+
+<section id="uses" class="sec uses">
+  <div class="uses-art">
+    <div><span class="mono label">Use cases</span><h2 class="reveal" style="margin-top:14px">Made for the people building homes</h2></div>
+    <svg viewBox="0 0 300 160" fill="none" stroke="#0D1B2A" stroke-width="1.2" aria-hidden="true">
+      <path d="M10 150h280"/><path d="M30 150V90l40-30 40 30v60"/><path d="M120 150V70l50-40 50 40v80"/><path d="M230 150v-50l30-24 30 24v50"/>
+      <rect x="160" y="110" width="20" height="40" fill="#FF6B2C" stroke="none"/><path d="M45 110h16v16H45zM135 90h16v16h-16zM190 90h16v16h-16zM250 110h16v16h-16z" stroke="#2B59FF"/>
+    </svg>
+  </div>
+  <div>
+    <details open><summary>Housing developers</summary><p>Know how many homes a lot can hold before you buy it, and get to permit faster.</p></details>
+    <details><summary>Homebuilders</summary><p>Reuse your house plans across lots and let Housing AI adapt them to each site's rules.</p></details>
+    <details><summary>Architects</summary><p>Hand the repetitive code checks to Housing AI and keep your focus on design.</p></details>
+    <details><summary>Affordable housing nonprofits</summary><p>Stretch small teams further and spend less on redesigns and consultants.</p></details>
+    <details><summary>Modular manufacturers</summary><p>Check every module against the codes of each city you ship to.</p></details>
+    <details><summary>City planning teams</summary><p>Pre-screen applications so reviewers spend time on decisions, not checklists.</p></details>
+    <details><summary>Lenders &amp; investors</summary><p>See a project's code and zoning risk before you commit capital.</p></details>
+  </div>
+</section>
+
+<section id="contact" class="sec contact">
+  <div>
+    <span class="mono label">Contact us</span>
+    <h2>Let's build more homes, faster</h2>
+    <p style="color:var(--muted);line-height:1.5;max-width:420px">Tell us about your projects. We'll show you Housing AI running on one of your own plans.</p>
+  </div>
+  <div>
+    <form id="form">
+      <label><span class="mono label">Name</span><input name="name" required autocomplete="name"></label>
+      <label><span class="mono label">Email</span><input name="email" type="email" required autocomplete="email"></label>
+      <label><span class="mono label">Company</span><input name="company" autocomplete="organization"></label>
+      <label><span class="mono label">Role</span><select name="role"><option>Developer</option><option>Homebuilder</option><option>Architect</option><option>Other</option></select></label>
+      <label class="full"><span class="mono label">Message</span><textarea name="msg" rows="4"></textarea></label>
+      <button class="btn solid" type="submit">Book a demo →</button>
+    </form>
+    <div class="thanks" role="status"><h3>Thanks for reaching out!</h3><p>We got your details. Our team will be in touch shortly.</p></div>
+  </div>
+</section>
+
+<footer>
+  <div class="grid">
+    <div><h3>The AI agent for every home you build</h3></div>
+    <div><span class="mono label">Product</span><ul><li><a href="#product">Housing Copilot</a></li><li><a href="#product">Housing Dashboard</a></li><li><a href="#contact">Pricing</a></li></ul></div>
+    <div><span class="mono label">Company</span><ul><li><a href="#top">Home</a></li><li><a href="#how">How it works</a></li><li><a href="#contact">Contact</a></li></ul></div>
+    <div><span class="mono label">Get in touch</span><ul><li><a href="mailto:hello@housingai.com">hello@housingai.com</a></li><li>LinkedIn</li><li>X / Twitter</li></ul></div>
+  </div>
+  <div class="bigword">
+    <svg viewBox="0 0 1000 120" aria-label="Housing AI">
+      <text x="500" y="100" text-anchor="middle" font-family="Inter Tight, sans-serif" font-weight="600" font-size="128" letter-spacing="-2" fill="none" stroke="#0D1B2A" stroke-width="1.2">HOUSING AI</text>
+    </svg>
+  </div>
+  <div class="legal mono label"><span>©2026 Housing AI. All rights reserved.</span><a href="#top">Back to top ↑</a></div>
+</footer>
+
+</div>
+<script>
+// flagged issues on the floor plan
+const issues=[
+  ['IRC R310.1 · Egress','Bed 1 window is too small for emergency escape. Widen to 24" clear opening.'],
+  ['ICC A117.1 · Door width','Bedroom door is 30" clear. Accessible units need 32". Swap to a 36" door.'],
+  ['IRC R303.1 · Ventilation','Kitchen has no openable window or exhaust. Add a range hood vented outside.'],
+];
+const pop=document.querySelector('.popover');let cur=null;
+document.querySelectorAll('.pin').forEach(p=>p.addEventListener('click',e=>{
+  cur=p;const [t,d]=issues[p.dataset.i];
+  pop.querySelector('.mono').textContent=t;pop.querySelector('p').textContent=d;
+  pop.style.left=Math.min(p.offsetLeft+34,p.parentElement.clientWidth-270)+'px';pop.style.top=p.offsetTop+'px';
+  pop.style.display=p.classList.contains('ok')?'none':'block';
+}));
+pop.querySelector('button').onclick=()=>{cur.classList.add('ok');cur.textContent='✓';pop.style.display='none'};
+
+// contact form: no backend yet, just confirm
+document.getElementById('form').addEventListener('submit',e=>{
+  e.preventDefault();e.target.style.display='none';document.querySelector('.thanks').style.display='block';
+});
+
+// scroll reveal
+const io=new IntersectionObserver(es=>es.forEach(x=>x.isIntersecting&&x.target.classList.add('in')),{threshold:.2});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
